@@ -89,7 +89,27 @@ function renderPhotos(){const list=$('#cd-photo-list');const p=ensurePhotos();li
 function renderGallery(){const p=get(K.photos,null);if(!p)return;const root=document.querySelector('#portfolio');if(!root)return;let host=root.querySelector('[data-cd-gallery]');if(!host){host=document.createElement('div');host.setAttribute('data-cd-gallery','1');root.appendChild(host)}host.innerHTML='';const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px';p.forEach((x,i)=>{const card=document.createElement('div');card.style.cssText='border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0002';card.innerHTML='<img src="'+x.img+'" alt="'+(x.caption||'')+'" style="width:100%;height:230px;object-fit:cover;display:block"><div style="padding:10px;font-size:14px">'+(x.caption||'')+'</div>';card.querySelector('img').onclick=()=>openViewer(x.img,x.caption);grid.appendChild(card)});host.appendChild(grid)}
 function openViewer(src,cap){let v=document.getElementById('cd-viewer');if(!v){v=document.createElement('div');v.id='cd-viewer';v.style.cssText='position:fixed;inset:0;background:#000d;z-index:2147483648;display:flex;align-items:center;justify-content:center;padding:20px;flex-direction:column';document.body.appendChild(v)}v.innerHTML='<button style="position:absolute;right:20px;top:15px;background:#fff;border:0;border-radius:50%;width:40px;height:40px;font-size:25px">×</button><img src="'+src+'" style="max-width:95%;max-height:80%;object-fit:contain"><div style="color:#fff;margin-top:12px;text-align:center">'+(cap||'')+'</div>';v.querySelector('button').onclick=()=>v.remove()}
 function editableNodes(){const root=document.body;const skip=new Set(['SCRIPT','STYLE','INPUT','TEXTAREA','BUTTON','SVG','PATH','IMG']);const out=[];const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){const el=n.parentElement;if(!el||skip.has(el.tagName)||el.closest('#cd-admin-overlay')||el.closest('#cd-admin-btn')||!n.nodeValue.trim())continue;if(n.nodeValue.trim().length<2)continue;out.push(n)}return out}
-function activateEdit(){editMode=!editMode;$('#cd-edit-mode').textContent=editMode?'Desativar edição':'Ativar edição';editableNodes().forEach(n=>{n.parentElement.classList.toggle('cd-editing',editMode);n.parentElement.onclick=editMode?(e=>{e.stopPropagation();const val=prompt('Editar texto:',n.nodeValue.trim());if(val!==null){n.nodeValue=n.nodeValue.replace(n.nodeValue.trim(),val)}}):null})}
+function activateEdit(){
+editMode=!editMode;
+$('#cd-edit-mode').textContent=editMode?'Desativar edição':'Ativar edição';
+
+if(editMode){
+overlay.style.display='none';
+}else{
+overlay.style.display='block';
+}
+
+editableNodes().forEach(n=>{
+n.parentElement.classList.toggle('cd-editing',editMode);
+n.parentElement.onclick=editMode?(e=>{
+e.stopPropagation();
+const val=prompt('Editar texto:',n.nodeValue.trim());
+if(val!==null){
+n.nodeValue=n.nodeValue.replace(n.nodeValue.trim(),val)
+}
+}):null
+})
+}
 function saveTexts(){const vals=[];editableNodes().forEach((n,i)=>{const key='t'+i;vals.push({key,text:n.nodeValue})});set(K.texts,vals);alert('Textos salvos neste navegador.');}
 function applyTexts(){const vals=get(K.texts,[]);if(!vals.length)return;const ns=editableNodes();vals.forEach((v,i)=>{if(ns[i])ns[i].nodeValue=v.text})}
 function renderTextList(){const list=$('#cd-text-list');list.innerHTML='<p class="cd-help">Use “Ativar edição” para editar diretamente na página. As alterações são aplicadas novamente quando você abrir este arquivo neste navegador.</p>'}
