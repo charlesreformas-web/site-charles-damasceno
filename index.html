@@ -110,7 +110,69 @@ n.nodeValue=n.nodeValue.replace(n.nodeValue.trim(),val)
 }):null
 })
 }
-function saveTexts(){const vals=[];editableNodes().forEach((n,i)=>{const key='t'+i;vals.push({key,text:n.nodeValue})});set(K.texts,vals);alert('Textos salvos neste navegador.');}
+function b64utf8(s){
+  const bytes=new TextEncoder().encode(s);
+  let bin='';
+  const chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    bin+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+  }
+  return btoa(bin);
+}
+
+async function saveTexts(){
+  const vals=[];
+  editableNodes().forEach((n,i)=>{
+    const key='t'+i;
+    vals.push({key,text:n.nodeValue});
+  });
+  set(K.texts,vals);
+
+  const token=prompt('Cole seu token do GitHub para publicar as alterações. Ele NÃO será salvo no site:');
+  if(!token)return;
+
+  try{
+    const url='https://api.github.com/repos/charlesreformas-web/site-charles-damasceno/contents/index.html';
+    const headers={
+      Authorization:'Bearer '+token,
+      Accept:'application/vnd.github+json',
+      'X-GitHub-Api-Version':'2022-11-28',
+      'Content-Type':'application/json'
+    };
+
+    const atual=await fetch(url+'?ref=main',{headers});
+    if(!atual.ok)throw new Error('Não consegui acessar o index.html no GitHub.');
+
+    const dados=await atual.json();
+
+    const copia=document.documentElement.cloneNode(true);
+    copia.querySelectorAll('.cd-editing').forEach(el=>{
+      el.classList.remove('cd-editing');
+    });
+
+    const html='<!DOCTYPE html>\n'+copia.outerHTML;
+
+    const resposta=await fetch(url,{
+      method:'PUT',
+      headers,
+      body:JSON.stringify({
+        message:'Atualização pelo editor do site',
+        content:b64utf8(html),
+        sha:dados.sha,
+        branch:'main'
+      })
+    });
+
+    if(!resposta.ok){
+      const erro=await resposta.json().catch(()=>({}));
+      throw new Error(erro.message||'Falha ao publicar.');
+    }
+
+    alert('✅ Site atualizado publicamente! Aguarde alguns minutos para o GitHub Pages atualizar.');
+  }catch(e){
+    alert('❌ Não foi possível publicar: '+e.message);
+  }
+}
 function applyTexts(){const vals=get(K.texts,[]);if(!vals.length)return;const ns=editableNodes();vals.forEach((v,i)=>{if(ns[i])ns[i].nodeValue=v.text})}
 function renderTextList(){const list=$('#cd-text-list');list.innerHTML='<p class="cd-help">Use “Ativar edição” para editar diretamente na página. As alterações são aplicadas novamente quando você abrir este arquivo neste navegador.</p>'}
 function open(){if(!localStorage.getItem(K.pass))set(K.pass,hash('1234'));const pw=prompt('Senha do editor:');if(pw===null)return;if(hash(pw)!==get(K.pass,'')){alert('Senha incorreta.');return}overlay.style.display='block';renderPhotos();renderTextList();const cfg=get(K.site,{});$('#cd-business').value=cfg.business||'';$('#cd-phone').value=cfg.phone||'';$('#cd-short').value=cfg.short||''}
