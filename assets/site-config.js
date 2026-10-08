@@ -2,6 +2,6 @@
 // O anon key do Supabase pode ficar no navegador quando o banco/storage estiverem protegidos por RLS.
 window.SITE_CONFIG = {
   SUPABASE_URL: 'https://xmtwlvjkkgloeacgixaq.supabase.com',
-  SUPABASE_ANON_KEY: 'COLE_AQUI_A_CHAVE_ANON_DO_SEU_PROJETO',
+  SUPABASE_ANON_KEY: 'sb_publishable_YYVdNCy2wm9Hr-U5V16Yzg_dJg59ffz',
   GALLERY_FUNCTION_URL: 'COLE_AQUI_A_URL_DA_EDGE_FUNCTION_public-gallery'
 };
