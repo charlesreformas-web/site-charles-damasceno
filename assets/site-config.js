@@ -3,5 +3,5 @@
 window.SITE_CONFIG = {
   SUPABASE_URL: 'https://xmtwlvjkkgloeacgixaq.supabase.com',
   SUPABASE_ANON_KEY: 'sb_publishable_YYVdNCy2wm9Hr-U5V16Yzg_dJg59ffz',
-  GALLERY_FUNCTION_URL: 'COLE_AQUI_A_URL_DA_EDGE_FUNCTION_public-gallery'
+  GALLERY_FUNCTION_URL: 'https://xmtwlvjkkgloeacgixaq.supabase.co/functions/v1/public-gallery'
 };
