@@ -29,7 +29,6 @@
     } catch (_) { return; }
 
     if (!Array.isArray(photos) || !photos.length) return;
-    gallery.replaceChildren();
     photos.forEach((photo, index) => gallery.appendChild(card(photo, index, photos.length)));
   }
 
